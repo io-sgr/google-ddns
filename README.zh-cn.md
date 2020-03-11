@@ -4,13 +4,13 @@
 
 ## 背景
 
-It's a pretty common requirement for the folks who want to host some service at their home and expose it to the public network, for example I have a NAS at home and would like to access the admin UI remotely. I use PPPoE to connect to the public Internet, and my ISP usually won't give me a static IPv4 address, they will constantly renew it like weekly or whenever they wish to.
+随着智能家居设备的推广和普及，越来越多的人希望能够在自己不在家的时候依然能够访问或者控制家中的设备，比如说我家中有一个 NAS 服务器，而我出门在外的时候依然可以访问到 NAS 的管理界面甚至是以一种安全的方式直接访问上面的文件。如果你知道自己家里网络的公网 IP，外加端口映射，你是可以直接访问家中的设备的，然而问题是大部分人都是使用 PPPoE 来拨号上网，大部分网络提供商并不会给你一个固定的 IPv4 地址，动态分配的地址随时有可能发生变化，通常是一周左右。
 
-Most of modern routers now have build-in support for DDNS, and we have lots of well-known service providers, some of them even have free-tier product but requires a constant renew every month.
+比较常见的解决方式是通过动态域名解析，也就是 Dynamic DNS（DDNS），而且现在主流路由器基本都内置了对 DDNS 的支持，也有很多知名的 DDNS 服务提供商，他们会帮你在某个特定域名下创建属于你自己的子域名，然后帮你动态绑定一条 A 记录到你目前的公网 IP（需要在路由器里做协同配置），其中有一些服务提供商甚至提供免费的 DDNS 服务，但需要你定期更新延长租期。
 
-If you've already got your own domain name(like me) and prefer to reuse it, things could be a little bit different. Obviously you can continue to use DDNS products, and create a CNAME record point to the hostname supplied by DDNS service provider, but when people do a `nslookup`, that hostname will be exposed in the result.
+如果你觉得他们提供的域名都太丑，而且不支持多级的子域名之类，想使用自己的域名换取更高的灵活度，那事情有些许的不同。你显然可以继续搭配 DDNS 使用，你所需要做的仅仅是创建一条 CNAME 记录指向 DDNS 服务提供商的子域名，但这么做的问题是，如果其他人用 `nslookup` 之类的命令来查询你的域名解析记录，这个子域名就会被暴露在结果中。
 
-To avoid that, I'm more preferred use my own way to update A record automatically when IP changes been detected. Here comes my Google Cloud DNS based solution.
+为了避免这种情况，我更倾向于用另一种方式来自动的更新我某个域名的 A 记录，于是就有了这个基于 Google Cloud DNS 的项目。
 
 ## 准备工作
 * 一个托管在 [Google Cloud Platform](https://cloud.google.com/) 的项目。
