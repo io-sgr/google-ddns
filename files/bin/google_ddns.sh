@@ -12,7 +12,7 @@
 #
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 show_help() {
    cat << EOF
@@ -27,6 +27,7 @@ Options:
    -k|--key-file	Key file
    -z|--zone		Zone name
    -d|--domain		Domain name
+   -e|--enable-ipv6	Enable IPv6
    -t|--proxy-type	Proxy type
    -a|--proxy-addr	Proxy address
    -p|--proxy-port	Proxy port
@@ -47,6 +48,10 @@ case $i in
     ;;
     -d=*|--domain=*)
     DOMAIN_NAME="${i#*=}"
+    shift
+    ;;
+    -e=*|--enable-ipv6=*)
+    ENABLE_IPV6="${i#*=}"
     shift
     ;;
     -t=*|--proxy-type=*)
@@ -151,7 +156,9 @@ update() {
     fi
 }
 
-update resolver1.ipv6-sandbox.opendns.com AAAA 6
 update resolver1.opendns.com A 4
+if [[ "${ENABLE_IPV6}" == "true" ]]; then
+    update resolver1.ipv6-sandbox.opendns.com AAAA 6
+fi
 
 echo "Updated time: `date`"
