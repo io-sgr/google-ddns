@@ -53,6 +53,9 @@ docker run -d --restart=unless-stopped \
     --name=google-ddns \
     -e ZONE=<your zone name> \
     -e DOMAIN_NAME=<your domain name> \
+    -e PROXY_TYPE=<type of proxy, http or socks5 for instance> \
+    -e PROXY_ADDR=<IP address or hostname of proxy> \
+    -e PROXY_PORT=<Port of proxy> \
     -v <path to json file>:/credential \
     sgrio/google-ddns
 ```

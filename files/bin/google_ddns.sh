@@ -1,4 +1,4 @@
-#  Copyright (C) 2014-2020  SgrAlpha
+#  Copyright (C) 2014-2021  SgrAlpha
 #
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -15,12 +15,17 @@
 #!/usr/bin/env sh
 
 show_help() {
-   echo "Example: sh $0 --key-file=/credential.json --zone=default --domain=example.com"
+   echo "Example: sh $0 --key-file=/credential.json \\"
+   echo "\t --zone=default --domain=example.com \\"
+   echo "\t --proxy-type=http --proxy-addr=localhost --proxy-port=8080"
    echo ""
    echo "Options:"
    echo -e "\t -k|--key-file\tKey file"
    echo -e "\t -z|--zone\tZone name"
    echo -e "\t -d|--domain\tDomain name"
+   echo -e "\t -t|--proxy-type\tProxy type"
+   echo -e "\t -a|--proxy-addr\tProxy address"
+   echo -e "\t -p|--proxy-port\tProxy port"
 }
 
 for i in "$@"
@@ -36,6 +41,18 @@ case $i in
     ;;
     -d=*|--domain=*)
     DOMAIN_NAME="${i#*=}"
+    shift
+    ;;
+    -t=*|--proxy-type=*)
+    PROXY_TYPE="${i#*=}"
+    shift
+    ;;
+    -a=*|--proxy-addr=*)
+    PROXY_ADDR="${i#*=}"
+    shift
+    ;;
+    -p=*|--proxy-port=*)
+    PROXY_PORT="${i#*=}"
     shift
     ;;
     *)
@@ -68,6 +85,16 @@ gcloud auth activate-service-account --key-file="${KEY_FILE}"
 GCP_PROJECT=`cat "${KEY_FILE}" | jq .project_id --raw-output`
 echo "GCP Project: ${GCP_PROJECT}"
 gcloud config set project "${GCP_PROJECT}"
+
+if [[ ! -z "${PROXY_TYPE}" ]]; then
+    gcloud config set proxy/type ${PROXY_TYPE}
+fi
+if [[ ! -z "${PROXY_ADDR}" ]]; then
+    gcloud config set proxy/address ${PROXY_ADDR}
+fi
+if [[ ! -z "${PROXY_PORT}" ]]; then
+    gcloud config set proxy/port ${PROXY_PORT}
+fi
 
 gcloud dns record-sets list --project="${GCP_PROJECT}" --zone="${ZONE}" --filter="name=${DOMAIN_NAME}." --format=none
 if [[ 0 -ne "$?" ]]; then
