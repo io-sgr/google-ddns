@@ -92,11 +92,9 @@ if [[ -z "${DOMAIN_NAME}" ]]; then
     exit 1
 fi
 
-gcloud auth activate-service-account --key-file="${KEY_FILE}"
-
 GCP_PROJECT=`cat "${KEY_FILE}" | jq .project_id --raw-output`
 echo "GCP Project: ${GCP_PROJECT}"
-gcloud config set project "${GCP_PROJECT}"
+# gcloud config set project "${GCP_PROJECT}"
 
 if [[ ! -z "${PROXY_TYPE}" ]]; then
     gcloud config set proxy/type ${PROXY_TYPE}
@@ -107,6 +105,8 @@ fi
 if [[ ! -z "${PROXY_PORT}" ]]; then
     gcloud config set proxy/port ${PROXY_PORT}
 fi
+
+gcloud auth activate-service-account --key-file="${KEY_FILE}"
 
 submit_tx() {
     CHANGE_ID=`gcloud dns record-sets transaction execute --zone="${ZONE}" --format=json | jq .id --raw-output`
@@ -123,9 +123,11 @@ submit_tx() {
 }
 
 update() {
-    TYPE=$1
+    SERVER=$1
+    TYPE=$2
+    VER=$3
 
-    CURRENT_IP=`dig +short myip.opendns.com "${TYPE}" @resolver1.opendns.com`
+    CURRENT_IP=`dig myip.opendns.com @${SERVER} +short ${TYPE} -${VER}`
     if [[ -z "${CURRENT_IP}" ]]; then
         echo "No type '${TYPE}' IP address found, skipping ..."
         return 0
@@ -149,7 +151,7 @@ update() {
     fi
 }
 
-update "AAAA"
-update "A"
+update resolver1.ipv6-sandbox.opendns.com AAAA 6
+update resolver1.opendns.com A 4
 
 echo "Updated time: `date`"
