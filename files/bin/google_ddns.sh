@@ -97,10 +97,6 @@ if [[ -z "${DOMAIN_NAME}" ]]; then
     exit 1
 fi
 
-GCP_PROJECT=`cat "${KEY_FILE}" | jq .project_id --raw-output`
-echo "GCP Project: ${GCP_PROJECT}"
-# gcloud config set project "${GCP_PROJECT}"
-
 if [[ ! -z "${PROXY_TYPE}" ]]; then
     gcloud config set proxy/type ${PROXY_TYPE}
 fi
@@ -110,6 +106,10 @@ fi
 if [[ ! -z "${PROXY_PORT}" ]]; then
     gcloud config set proxy/port ${PROXY_PORT}
 fi
+
+GCP_PROJECT=`cat "${KEY_FILE}" | jq .project_id --raw-output`
+echo "Setting GCP Project to '${GCP_PROJECT}'"
+gcloud config set project "${GCP_PROJECT}"
 
 gcloud auth activate-service-account --key-file="${KEY_FILE}"
 
