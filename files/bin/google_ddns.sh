@@ -113,6 +113,8 @@ gcloud config set project "${GCP_PROJECT}"
 
 gcloud auth activate-service-account --key-file="${KEY_FILE}"
 
+gcloud info --run-diagnostics
+
 submit_tx() {
     CHANGE_ID=`gcloud dns record-sets transaction execute --zone="${ZONE}" --format=json | jq .id --raw-output`
     if [[ -z "${CHANGE_ID}" ]]; then
